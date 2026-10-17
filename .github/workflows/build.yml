@@ -2,7 +2,7 @@ name: Build APK
 on: workflow_dispatch
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -12,9 +12,11 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: android-actions/setup-android@v3
       - name: SDK and NDK
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;21.4.7075529"
+        run: |
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;21.4.7075529"
       - name: API credentials
         env:
           API_ID: ${{ secrets.API_ID }}
