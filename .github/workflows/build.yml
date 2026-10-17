@@ -26,13 +26,11 @@ jobs:
           sed -i -E "s/(APP_ID *= *)[0-9]+;/\1${API_ID};/" $F
           sed -i -E "s/(APP_HASH *= *)\"[^\"]*\";/\1\"${API_HASH}\";/" $F
           grep -n "APP_ID\|APP_HASH" $F | sed -E 's/"[^"]*"/"***"/'
-      - name: Show build tasks
+      - name: Create keystore
         run: |
-          chmod +x gradlew
-          ./gradlew :TMessagesProj_AppStandalone:tasks --all | grep -i assemble | head -30
-      - name: Build
-        run: ./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon
-      - uses: actions/upload-artifact@v4
-        with:
-          name: apk
-          path: "**/build/outputs/apk/**/*.apk"
+          get() { grep -E "^$1=" gradle.properties | head -1 | cut -d= -f2-; }
+          ALIAS=$(get RELEASE_KEY_ALIAS); ALIAS=${ALIAS:-androidkey}
+          SP=$(get RELEASE_STORE_PASSWORD); SP=${SP:-android}
+          KP=$(get RELEASE_KEY_PASSWORD); KP=${KP:-android}
+          mkdir -p TMessagesProj/config
+          keytool -genkey -v -keystore TMe
