@@ -65,7 +65,6 @@ public class OwpengramServers {
 
     // OwpenGram's own production server RSA key.
     static final String OWPENGRAM_RSA_KEY =
-        static final String OWPENGRAM_RSA_KEY =
             "-----BEGIN RSA PUBLIC KEY-----\n" +
             "MIIBCgKCAQEAvRUzqgz8KUUsQafUdZMFZi3Dp5RQVEEkE9L3+305IFZexRomOPAa\n" +
             "YGbboB5Tv3OhCHT4RdHrZyKe91At+cIyjjfbPUG27jr9EOxUiaNbc6ihgS23Oqwv\n" +
