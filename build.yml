@@ -1,0 +1,36 @@
+name: Build APK
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: SDK and NDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;21.4.7075529"
+      - name: API credentials
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+        run: |
+          F=TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          sed -i -E "s/(APP_ID *= *)[0-9]+;/\1${API_ID};/" $F
+          sed -i -E "s/(APP_HASH *= *)\"[^\"]*\";/\1\"${API_HASH}\";/" $F
+          grep -n "APP_ID\|APP_HASH" $F | sed -E 's/"[^"]*"/"***"/'
+      - name: Show build tasks
+        run: |
+          chmod +x gradlew
+          ./gradlew :TMessagesProj_AppStandalone:tasks --all | grep -i assemble | head -30
+      - name: Build
+        run: ./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: "**/build/outputs/apk/**/*.apk"
