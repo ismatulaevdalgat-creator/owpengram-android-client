@@ -33,4 +33,16 @@ jobs:
           SP=$(get RELEASE_STORE_PASSWORD); SP=${SP:-android}
           KP=$(get RELEASE_KEY_PASSWORD); KP=${KP:-android}
           mkdir -p TMessagesProj/config
-          keytool -genkey -v -keystore TMe
+          keytool -genkey -v -keystore TMessagesProj/config/release.keystore \
+            -alias "$ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$SP" -keypass "$KP" -dname "CN=AlphaGram"
+      - name: Show build tasks
+        run: |
+          chmod +x gradlew
+          ./gradlew :TMessagesProj_AppStandalone:tasks --all | grep -i assemble | head -30
+      - name: Build
+        run: ./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: "**/build/outputs/apk/**/*.apk"
