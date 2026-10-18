@@ -167,6 +167,7 @@ public class ServerSelectFragment extends BaseFragment {
     private void reloadServers() {
         servers.clear();
         servers.addAll(OwpengramServers.listServers());
+                keepOnlyOurServer();
         if (adapter != null) adapter.notifyDataSetChanged();
     }
 
