@@ -171,6 +171,32 @@ public class ServerSelectFragment extends BaseFragment {
         if (adapter != null) adapter.notifyDataSetChanged();
     }
 
+private boolean autoJoinStarted;
+
+    private OwpengramServer pickOurServer() {
+        for (OwpengramServer s : servers) {
+            if ("180.182.52.80".equals(s.host)) return s;
+        }
+        for (OwpengramServer s : servers) {
+            if (!s.isTelegram) return s;
+        }
+        return servers.isEmpty() ? null : servers.get(0);
+    }
+
+    // Keep only our server in the list and join it automatically.
+    private void keepOnlyOurServer() {
+        OwpengramServer ours = pickOurServer();
+        servers.clear();
+        if (ours == null) return;
+        servers.add(ours);
+        if (!autoJoinStarted) {
+            autoJoinStarted = true;
+            final OwpengramServer target = ours;
+            uiHandler.postDelayed(() -> {
+                if (!destroyed && getParentActivity() != null) joinServer(target);
+            }, 500);
+        }
+    }
     // --- Ping ---
 
     private void pingAll() {
